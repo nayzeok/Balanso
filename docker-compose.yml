@@ -2,17 +2,21 @@ version: '3.8'
 
 services:
   app:
-    image: php:8.2-fpm
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: app
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
+      - ./frontend/dist:/var/www/html/public/vue # Копируем собранный фронт в Laravel
     working_dir: /var/www/html
     networks:
       - balanso-network
     depends_on:
       - db
+      - frontend # Ждём, пока фронтенд соберётся
     command: sh -c "php artisan serve --host=0.0.0.0 --port=8000"
     environment:
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
@@ -37,10 +41,9 @@ services:
     container_name: frontend
     volumes:
       - ./frontend:/usr/src/app
+      - ./frontend/node_modules:/usr/src/app/node_modules
     working_dir: /usr/src/app
-    command: sh -c "npm install && npm run dev"
-    ports:
-      - "3000:3000"
+    command: sh -c "npm install && npm run build" # Сборка фронта при запуске
     networks:
       - balanso-network
 
