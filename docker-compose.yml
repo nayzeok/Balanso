@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    image: php:8.2-fpm
+    container_name: app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    working_dir: /var/www/html
+    networks:
+      - balanso-network
+    depends_on:
+      - db
+    environment:
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
+
+  db:
+    image: mysql:8
+    container_name: db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: balanso
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - balanso-network
+
+  frontend:
+    image: node:18
+    container_name: frontend
+    volumes:
+      - ./frontend:/usr/src/app
+    working_dir: /usr/src/app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3000:3000"
+    networks:
+      - balanso-network
+
+volumes:
+  db_data:
+
+networks:
+  balanso-network:
+    driver: bridge
