@@ -13,6 +13,7 @@ services:
       - balanso-network
     depends_on:
       - db
+    command: sh -c "php artisan serve --host=0.0.0.0 --port=8000"
     environment:
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
 
