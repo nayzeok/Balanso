@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -10,14 +8,13 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/var/www/html
-      - ./frontend/dist:/var/www/html/public/vue # Копируем собранный фронт в Laravel
+      - ./frontend/dist:/var/www/html/public/vue
     working_dir: /var/www/html
     networks:
       - balanso-network
     depends_on:
       - db
-      - frontend # Ждём, пока фронтенд соберётся
-    command: sh -c "php artisan serve --host=0.0.0.0 --port=8000"
+    command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
     environment:
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
 
@@ -43,7 +40,9 @@ services:
       - ./frontend:/usr/src/app
       - ./frontend/node_modules:/usr/src/app/node_modules
     working_dir: /usr/src/app
-    command: sh -c "npm install && npm run build" # Сборка фронта при запуске
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173" # Проброс порта для Vue
     networks:
       - balanso-network
 
